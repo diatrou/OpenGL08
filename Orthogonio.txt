@@ -1,0 +1,84 @@
+package orthogonio;
+
+import com.jogamp.newt.event.WindowAdapter;
+import com.jogamp.newt.event.WindowEvent;
+import com.jogamp.newt.opengl.GLWindow;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.*;
+import com.jogamp.opengl.util.FPSAnimator;
+
+public class Orthogonio implements GLEventListener{
+	private static GLWindow window;
+	private static FPSAnimator animator;
+	
+	public static void init() {
+		GLProfile.initSingleton();
+		GLProfile profile = GLProfile.get(GLProfile.GL2);
+		GLCapabilities capabilities = new GLCapabilities(profile);
+		window = GLWindow.create(capabilities);
+		window.setSize(500, 500);
+		window.setResizable(false);
+		window.setVisible(true);		
+		window.addGLEventListener(new Orthogonio(){ 
+			@Override public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) { 
+				super.reshape(drawable, x, y, width, height); 
+				window.setTitle("Ορθογώνιο - Πλάτος: " + width + ", Ύψος: " + height); 
+			} 
+		});		
+		window.addWindowListener(
+				new WindowAdapter() {
+					@Override
+					public void windowDestroyNotify(WindowEvent e) {
+						if (animator.isAnimating()) {  
+							animator.stop();
+						}
+						System.exit(0);
+					}
+				}
+		);		
+		animator = new FPSAnimator(window, 60);
+		animator.start();
+	}
+	
+	public static void main(String[] args) {
+		init();
+	}
+	
+	@Override
+	public void display(GLAutoDrawable drawable) {
+		  GL2 gl = drawable.getGL().getGL2(); 
+		  gl.glClear(GL2.GL_COLOR_BUFFER_BIT); 
+		  
+		  gl.glColor3f(0.0f, 0.0f, 0.0f); 
+		  gl.glBegin(GL2.GL_POLYGON);
+		  gl.glVertex3f(-0.5f, -0.5f, 0.0f); // κάτω αριστερά 
+		  gl.glVertex3f(0.5f, -0.5f, 0.0f); // κάτω δεξιά 
+		  gl.glVertex3f(0.5f, 0.5f, 0.0f); // πάνω δεξιά
+		  gl.glVertex3f(-0.5f, 0.5f, 0.0f); // πάνω αριστερά 
+		  gl.glEnd();
+//		  gl.glFlush(); // Διασφαλίζει ότι όλες οι εντολές εκτελούνται. Εδώ δεν χρειάζεται γιατί χρησιμοποιούμε έναν animator.
+	}
+	@Override
+	public void dispose(GLAutoDrawable drawable) {
+		
+		
+	}
+	@Override
+	public void init(GLAutoDrawable drawable) {
+		GL2 gl = drawable.getGL().getGL2();
+		gl.glClearColor(1, 1, 1, 1);
+		
+	}
+	@Override
+	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
+		GL2 gl = drawable.getGL().getGL2(); 
+		gl.glViewport(0, 0, width, height); 		
+		gl.glMatrixMode(GL2.GL_PROJECTION); 
+		gl.glLoadIdentity(); 		
+		gl.glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+		gl.glMatrixMode(GL2.GL_MODELVIEW); 
+		gl.glLoadIdentity();
+				
+	}
+	
+}
